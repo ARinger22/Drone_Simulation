@@ -25,10 +25,12 @@ function Coordinate() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [seekValue, setSeekValue] = useState(0);
-    const [resume , setResume] = useState(false);
+  const [resume, setResume] = useState(false);
 
   const handleFileUpload = (event) => {
+    setIsSimulating(false);
     if (!event) return;
+    setCoordinates([[0, 0]]);
     const file = event.target.files[0];
     const reader = new FileReader();
 
@@ -142,7 +144,8 @@ function Coordinate() {
     }
   }, [seekValue, coordinates, isSimulating]);
 
-  const [showMaxCoordinatesWarning, setShowMaxCoordinatesWarning] = useState(false);
+  const [showMaxCoordinatesWarning, setShowMaxCoordinatesWarning] =
+    useState(false);
   useEffect(() => {
     setResume(false);
     if (isSimulating && currentIndex === coordinates.length - 1) {
@@ -234,9 +237,7 @@ function Coordinate() {
             <button
               className="flex-col bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
               onClick={handleResume}
-              disabled={
-                isSimulating || currentIndex === coordinates.length - 1
-              }
+              disabled={isSimulating || currentIndex === coordinates.length - 1}
             >
               Resume
             </button>
