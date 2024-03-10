@@ -17,7 +17,7 @@ function Coordinate() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [intervalId, setIntervalId] = useState(null);
     const [center, setCenter] = useState({ lat: 0, lng: 0 });
-
+    const [isSimulating, setIsSimulating] = useState(false);
 
     const handleFileUpload = (event) => {
         const file = event.target.files[0];
@@ -46,6 +46,7 @@ function Coordinate() {
         }
 
         setCoordinates(coords);
+        setCurrentIndex(0);
     };
 
     const parseJSONCoordinates = (input) => {
@@ -75,24 +76,28 @@ function Coordinate() {
     };
 
     useEffect(() => {
-        if (currentIndex < coordinates.length) {
+        if (isSimulating && currentIndex < coordinates.length - 1) {
             const timeoutId = setTimeout(() => {
                 setCurrentIndex(currentIndex + 1);
             }, 1000);
             return () => clearTimeout(timeoutId);
         }
-    }, [currentIndex, coordinates]);
+    }, [currentIndex, coordinates, isSimulating]);
 
     const simulateDrone = () => {
         if (coordinates.length === 0 || (coordinates[0][0] === 0 && coordinates[0][1] === 0)) {
             console.log("please enter coordinates first");
             return;
         }
-        console.log(currentIndex);
+        setIsSimulating(true);
     };
 
     const handlePause = () => {
-        clearTimeout(intervalId);
+        setIsSimulating(false);
+    };
+
+    const handleResume = () => {
+        setIsSimulating(true);
     };
 
     return (
@@ -103,7 +108,7 @@ function Coordinate() {
                         url={mapapi.maptiler.url}
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     />
-                    <Polyline positions={coordinates.slice(0, currentIndex+1)} color="red" />
+                    <Polyline positions={coordinates.slice(0, currentIndex + 1)} color="red" />
                     <Marker position={coordinates[currentIndex] ? coordinates[currentIndex] : [0, 0]} icon={customMarkerIcon} />
                 </MapContainer>
             </div>
@@ -124,14 +129,23 @@ function Coordinate() {
                     <button
                         className="flex-col bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 mr-5"
                         onClick={simulateDrone}
+                        disabled={isSimulating}
                     >
                         Simulate
                     </button>
                     <button
-                        className="flex-col bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
+                        className="flex-col bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 mr-5"
                         onClick={handlePause}
+                        disabled={!isSimulating}
                     >
                         Pause
+                    </button>
+                    <button
+                        className="flex-col bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
+                        onClick={handleResume}
+                        disabled={isSimulating || currentIndex === coordinates.length - 1}
+                    >
+                        Resume
                     </button>
                 </div>
             </div>
