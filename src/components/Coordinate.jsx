@@ -24,6 +24,8 @@ function Coordinate() {
   const [center, setCenter] = useState({ lat: 0, lng: 0 });
   const [isSimulating, setIsSimulating] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [seekValue, setSeekValue] = useState(0);
+    const [resume , setResume] = useState(false);
 
   const handleFileUpload = (event) => {
     if (!event) return;
@@ -126,12 +128,23 @@ function Coordinate() {
   };
 
   const handleResume = () => {
+    setResume(true);
     setIsSimulating(true);
   };
 
-  const [showMaxCoordinatesWarning, setShowMaxCoordinatesWarning] =
-    useState(false);
+  const handleSeekChange = (event) => {
+    setSeekValue(parseFloat(event.target.value));
+  };
+
   useEffect(() => {
+    if (isSimulating && !resume) {
+      setCurrentIndex(Math.floor(seekValue * (coordinates.length - 1)));
+    }
+  }, [seekValue, coordinates, isSimulating]);
+
+  const [showMaxCoordinatesWarning, setShowMaxCoordinatesWarning] = useState(false);
+  useEffect(() => {
+    setResume(false);
     if (isSimulating && currentIndex === coordinates.length - 1) {
       setShowMaxCoordinatesWarning(true);
       const timeoutId = setTimeout(() => {
@@ -145,11 +158,11 @@ function Coordinate() {
     <div className="h-5500 pb-5 bg-gradient-to-b from-blue-900 to-gray-700 text-black-400">
       {showMaxCoordinatesWarning && (
         <div className="bg-green-200 text-green-800 py-2 px-4 rounded">
-          Max coordinates reached or you are on final destination
+          Max coordinates reached or you are on the final destination
         </div>
       )}
       {wrongInput && (
-        <div className="bg-green-200 text-green-800 py-2 px-4 rounded">
+        <div className="bg-red-200 text-red-800 py-2 px-4 rounded">
           {wrongInputText}
         </div>
       )}
@@ -176,12 +189,20 @@ function Coordinate() {
               icon={customMarkerIcon}
             />
           </MapContainer>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={seekValue}
+            onChange={handleSeekChange}
+          />
         </div>
 
         <div className="flex flex-col items-center p-4">
           <textarea
             className="w-full h-32 border border-gray-300 rounded p-2 mb-2"
-            placeholder="Enter latitude, longitude pairs like 37.7749, -122.4194 in different lines"
+            placeholder="Enter latitude, longitude pairs like 37.7749, -122.4194 on different lines"
             onChange={(e) => parseCoordinates(e.target.value, "text/plain")}
           />
           <input
@@ -213,7 +234,9 @@ function Coordinate() {
             <button
               className="flex-col bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
               onClick={handleResume}
-              disabled={isSimulating || currentIndex === coordinates.length - 1}
+              disabled={
+                isSimulating || currentIndex === coordinates.length - 1
+              }
             >
               Resume
             </button>
