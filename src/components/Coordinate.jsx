@@ -142,7 +142,7 @@ function Coordinate() {
   }, [currentIndex, coordinates, isSimulating]);
 
   return (
-    <div className="h-screen bg-gradient-to-b from-blue-900 to-gray-700 text-black-400">
+    <div className="h-5500 pb-5 bg-gradient-to-b from-blue-900 to-gray-700 text-black-400">
       {showMaxCoordinatesWarning && (
         <div className="bg-green-200 text-green-800 py-2 px-4 rounded">
           Max coordinates reached or you are on final destination
@@ -153,7 +153,7 @@ function Coordinate() {
           {wrongInputText}
         </div>
       )}
-      <Main className="pt-5 flex items-center justify-center">
+      <Main className="pt-5 flex flex-col md:flex-row items-center justify-center">
         <div className="ml-2 w-full">
           <MapContainer
             style={{ height: "700px", width: "100%" }}
